@@ -2,7 +2,7 @@
   "version": 2,
   "builds": [
     {
-      "src": "app.py",  // Your main Python file
+      "src": "app.py",
       "use": "@vercel/python"
     }
   ],
@@ -10,7 +10,7 @@
     {
       "src": "/download",
       "methods": ["GET"],
-      "dest": "app.py"  // Adjust according to your entry point
+      "dest": "app.py"
     }
   ]
 }
