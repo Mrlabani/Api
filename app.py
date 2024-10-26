@@ -1,104 +1,58 @@
-import re
 import logging
-from urllib.parse import parse_qs, urlparse
-import requests
 from flask import Flask, jsonify, request
+import requests
 
 app = Flask(__name__)
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 
-# Use the provided cookie
-COOKIE = "browserid=KkqiaAO3p12oizrUcNK5p-GY29s-vV1iigMPSjxVwsniG-0evN4Kk3YfGsM=; lang=en; __bid_n=1928c0f31aeb2e65094207; __stripe_mid=ba71d03c-75a9-4504-aae2-ddc3d00744e07227ab; ndus=YQhUH3CteHuisY28unyKW-CLfFjxTknFOPm9rQkP; _ga=GA1.1.250660626.1728927138; ndut_fmt=9A1AAD656E4100E6655E3027B51639F402CF5DB5833899914679A0691EB248A8; _ga_06ZNKL8C2E=GS1.1.1728954768.2.0.1728954777.51.0.0; csrfToken=m11-xQY5Px2RsGgSaJp3BXGi"
+# Replace with your actual cookie
+COOKIE = """# Netscape HTTP Cookie File
+# http://curl.haxx.se/rfc/cookie_spec.html
+# This is a generated file!  Do not edit.
 
-# URL patterns for Terabox
-def check_url_patterns(url):
-    patterns = [
-        r"ww\.mirrobox\.com",
-        r"www\.nephobox\.com",
-        r"freeterabox\.com",
-        r"www\.freeterabox\.com",
-        r"1024tera\.com",
-        r"4funbox\.co",
-        r"www\.4funbox\.com",
-        r"mirrobox\.com",
-        r"nephobox\.com",
-        r"terabox\.app",
-        r"terabox\.com",
-        r"www\.terabox\.ap",
-        r"www\.terabox\.com",
-        r"www\.1024tera\.co",
-        r"www\.momerybox\.com",
-        r"teraboxapp\.com",
-        r"momerybox\.com",
-        r"tibibox\.com",
-        r"www\.tibibox\.com",
-        r"www\.teraboxapp\.com",
-    ]
-    return any(re.search(pattern, url) for pattern in patterns)
-
-def get_urls_from_string(string: str) -> list[str]:
-    pattern = r"(https?://\S+)"
-    urls = re.findall(pattern, string)
-    return [url for url in urls if check_url_patterns(url)]
-
-def find_between(data: str, first: str, last: str) -> str | None:
-    try:
-        start = data.index(first) + len(first)
-        end = data.index(last, start)
-        return data[start:end]
-    except ValueError:
-        return None
-
-def extract_surl_from_url(url: str) -> str | None:
-    parsed_url = urlparse(url)
-    query_params = parse_qs(parsed_url.query)
-    return query_params.get("surl", [None])[0]
+.1024terabox.com TRUE / FALSE 1734110657 browserid KkqiaAO3p12oizrUcNK5p-GY29s-vV1iigMPSjxVwsniG-0evN4Kk3YfGsM=
+.1024terabox.com TRUE / FALSE 1731519259 lang en
+.1024terabox.com TRUE / FALSE 1763514767 __bid_n 1928c0f31aeb2e65094207
+.www.1024terabox.com TRUE / TRUE 1760462675 __stripe_mid ba71d03c-75a9-4504-aae2-ddc3d00744e07227ab
+.1024terabox.com TRUE / TRUE 1760462688 ndus YQhUH3CteHuisY28unyKW-CLfFjxTknFOPm9rQkP
+.1024terabox.com TRUE / FALSE 1763514768 _ga GA1.1.250660626.1728927138
+www.1024terabox.com FALSE / FALSE 1731546766 ndut_fmt 9A1AAD656E4100E6655E3027B51639F402CF5DB5833899914679A0691EB248A8
+.1024terabox.com TRUE / FALSE 1763514777 _ga_06ZNKL8C2E GS1.1.1728954768.2.0.1728954777.51.0.0
+www.terabox.com FALSE / FALSE 0 csrfToken m11-xQY5Px2RsGgSaJp3BXGi
+.terabox.com TRUE / FALSE 1734139217 browserid ouU6uRozT6X1tJt8SOFi2YjzGCYcUTAGDs6vbOk2vD5ITkUP2Bbo2ZEAUCI=
+.terabox.com TRUE / FALSE 1731547254 lang en
+.terabox.com TRUE / FALSE 1763515260 __bid_n 1928dc2ff82c89d1af4207
+.ymg-api.terabox.com TRUE / TRUE 1763515263 ab_jid dc6e96b3fb153bbe713dd28f05fc110e392b
+.terabox.com TRUE / TRUE 1760491244 ndus YQhUH3CteHuiBsaOUy0faM-WT6TLhlQ1UcX32w37
+www.terabox.com FALSE / FALSE 1731547260 ndut_fmt 9C5DFE0581A745A9AD4B0B634DC2B5F5E49D67EB9E62DF923B9E72B16830D23A
+.ymg-api.terabox.com TRUE / TRUE 1763515263 ab_bid 96b3fb153bbe713dd28f05fc110e392c0799
+.terabox.com TRUE / TRUE 1728962463 ab_sr 1.0.1_MzBhNjVhMWZkOGM5YjhhOTU1MTk3ZTg2YWFkYzUxYmVlZmUzMjkwZTliMjE5NWM2ZjdkNmRkMGJjZjM2NzA1MDNhMGNkODUxNGI2YWI0NDkzMWFkZGYwM2QyMzhmZDRmNGQ4NDc1MzBjZGM4ZjM0ZGE0YzI5MmNlYTQxM2FkYTQ1NDUzNjA4NGQ5M2FmYTMyZTk2MDhhOTk1NzcwNTk4Mw==
+.terabox.com TRUE / FALSE 0 ab_ymg_result {"data":"db3b45abc88381d662d3c3d6b94d25f188b52b76f8d486cfdfccfdc7599c6f81273db9bcd70dd1c5bf62080dd6964e8792daebccefc2f9d5ed8e423af125086031a0ea8169d6348818af2fe233c6f01a9b60428b82c9ce78dfeef2300292898faa2835199a4decb60d2b1e687784a99901e611ce1ac215d79cf950fd8a573de5","key_id":"66","sign":"e0cdc5eb"}
+.terabox.com TRUE / FALSE 1763515265 _ga GA1.1.505789176.1728955266
+.terabox.com TRUE / FALSE 1763515280 _ga_06ZNKL8C2E GS1.1.1728955265.1.1.1728955280.45.0.0"""
 
 def get_data(url: str):
-    session = requests.Session()
-    headers = {
-        "Cookie": COOKIE,
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
-    }
+    try:
+        session = requests.Session()
+        headers = {
+            "Cookie": COOKIE,
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
+        }
 
-    response = session.get(url, headers=headers)
-    response.raise_for_status()  # Raise an error for bad responses
+        logging.info("Making request to URL: %s", url)
+        response = session.get(url, headers=headers)
+        response.raise_for_status()  # Raise an error for bad responses
+        logging.info("Received response: %s", response.text)
+        
+        # Process the response as needed
+        # Example: return JSON or relevant data
+        return response.json()  # Adjust according to the expected response format
 
-    default_thumbnail = find_between(response.text, 'og:image" content="', '"')
-    logid = find_between(response.text, "dp-logid=", "&")
-    jsToken = find_between(response.text, "fn%28%22", "%22%29")
-    shorturl = extract_surl_from_url(response.url)
-
-    if not shorturl:
-        logging.error("Short URL could not be extracted.")
-        return {"error": "Invalid URL."}
-
-    req_url = f"https://www.terabox.app/share/list?app_id=250528&web=1&channel=0&jsToken={jsToken}&dp-logid={logid}&page=1&num=20&by=name&order=asc&site_referer=&shorturl={shorturl}&root=1"
-    response = session.get(req_url, headers=headers)
-    response.raise_for_status()  # Raise an error for bad responses
-
-    data = response.json()
-    if data["errno"]:
-        logging.error("Error in response data.")
-        return {"error": "Error fetching data."}
-
-    if "list" not in data or not data["list"]:
-        logging.error("No files found.")
-        return {"error": "No files found."}
-
-    file_info = data["list"][0]
-    direct_link_response = session.head(file_info["dlink"], headers=headers)
-    direct_link = direct_link_response.headers.get("location")
-
-    return {
-        "file_name": file_info.get("server_filename"),
-        "link": file_info.get("dlink"),
-        "direct_link": direct_link,
-        "thumb": file_info.get("thumbs", {}).get("url3") or default_thumbnail,
-        "size": file_info.get("size"),
-    }
+    except requests.RequestException as e:
+        logging.error("Request failed: %s", str(e))
+        return {"error": "Failed to retrieve the URL."}
 
 @app.route('/download', methods=['GET'])
 def download():
@@ -110,12 +64,13 @@ def download():
 
         data = get_data(url)
         if "error" in data:
+            logging.error(data["error"])  # Log specific error from get_data
             return jsonify(data), 400
         
         return jsonify(data), 200
 
     except Exception as e:
-        logging.exception("An error occurred while processing the request.")
+        logging.exception("An error occurred while processing the request: %s", str(e))
         return jsonify({"error": "An internal server error occurred."}), 500
 
 if __name__ == '__main__':
