@@ -1,15 +1,16 @@
 {
-    "version": 2,
-    "builds": [
-        {
-            "src": "app.py",
-            "use": "@vercel/python"
-        }
-    ],
-    "routes": [
-        {
-            "src": "/(.*)",
-            "dest": "app py"
-        }
-    ]
+  "version": 2,
+  "builds": [
+    {
+      "src": "app.py",  // Your main Python file
+      "use": "@vercel/python"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/download",
+      "methods": ["GET"],
+      "dest": "app.py"  // Adjust according to your entry point
+    }
+  ]
 }
